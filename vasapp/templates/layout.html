@@ -1,0 +1,32 @@
+{% load static tailwind_tags %}
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+    {% load static %}
+    {% tailwind_css %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="{% static 'images/logosm.png' %}" type="image/x-icon">
+    <title>VAS - {% block title %}{% endblock title %}</title>
+</head>
+<body>
+    <header>
+        <div class="bg-slate-700 text-center">
+            <h1 class="">Header</h1>
+        </div>
+    </header>
+
+    <main>
+        <div class="">
+            {% block body %} {% endblock body %}
+        </div>
+    </main>
+
+    <footer class="">
+        <div class="">
+            Footer
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,151 @@
+{% load static tailwind_tags %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    {% tailwind_css %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="{% static 'images/logosm.png' %}" type="image/x-icon">
+    <title>VAS - Registration Page</title>
+    <style>
+        .backdrop-blur {
+            backdrop-filter: blur(4px);
+        }
+        .pulse {
+            animation: pulse 1s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body class="relative w-screen h-screen">
+    <!-- Header -->
+    <header class="fixed top-0 left-0 right-0 bg-white shadow-md z-10">
+        <div class="flex justify-between items-center p-4 mx-auto">
+            <div class="flex items-center">
+                <img src="{% static 'images/logo.png' %}" alt="Logo" class="h-10 w-auto mr-2">
+                <h1 class="text-2xl font-bold text-gray-800 hidden md:block">Voice Authentication System</h1>
+            </div>
+            <div>
+                <a class="bg-yellow-500 text-white px-6 py-3 rounded-xl hover:bg-yellow-400 transition duration-300" href="{% url 'login' %}">Login</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="relative w-screen h-screen">
+        <img class="w-full h-full object-cover" src="https://t3.ftcdn.net/jpg/03/55/60/70/240_F_355607062_zYMS8jaz4SfoykpWz5oViRVKL32IabTP.jpg" alt="Background Image">
+
+        <div class="absolute inset-0 flex justify-center items-center pt-32">
+            <form method="POST" class="rounded-xl p-8 backdrop-blur bg-white bg-opacity-10 shadow-lg w-96">
+                {% csrf_token %}
+                <div class="mb-6">
+                    <h2 class="text-3xl font-bold text-gray-900 mb-2 text-center">Employee Registration</h2>
+                    <p class="text-slate-800 text-center">Please fill in your details and provide a voice sample.</p>
+                </div>
+                <div class="mb-4">
+                    <label for="employeeid" class="block text-slate-700 font-medium mb-2">Employee ID</label>
+                    <input class="form-input px-4 py-3 rounded w-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500" type="text" name="employeeid" id="employeeid" placeholder="Enter employee ID" required>
+                </div>
+                <div class="mb-4">
+                    <label for="name" class="block text-slate-700 font-medium mb-2">Employee Name</label>
+                    <input class="form-input px-4 py-3 rounded w-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500" type="text" name="name" id="name" placeholder="Enter employee name" required>
+                </div>
+                <div class="mb-4">
+                    <label for="email" class="block text-slate-700 font-medium mb-2">Email</label>
+                    <input class="form-input px-4 py-3 rounded w-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500" type="email" name="email" id="email" placeholder="Enter email" required>
+                </div>
+                <div class="mb-6">
+                    <label for="voice-sample" class="block text-slate-700 font-medium mb-2">Voice Sample</label>
+                    <button type="button" id="start-recording" class="w-full bg-blue-500 text-white px-4 py-3 rounded hover:bg-blue-600 transition duration-300">Start Recording</button>
+                    <button type="button" id="stop-recording" class="w-full bg-red-500 text-white px-4 py-3 rounded mt-2 hover:bg-red-600 transition duration-300 hidden">Stop Recording</button>
+                    <input type="hidden" name="voice-sample" id="voice-sample">
+                </div>
+                <div class="mb-6 hidden" id="audio-player-container">
+                    <label class="block text-slate-700 font-medium mb-2">Playback</label>
+                    <audio controls id="audio-player" class="w-full">
+                        <source id="audio-source" type="audio/webm">
+                        Your browser does not support the audio element.
+                    </audio>
+                </div>
+                <div class="text-center">
+                    <button type="submit" class="bg-green-500 text-white px-6 py-3 rounded-xl hover:bg-green-600 transition duration-300 shadow-md">Register</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="recording-modal" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center hidden z-20">
+        <div class="bg-white rounded-lg p-8 max-w-sm w-full">
+            <h3 class="text-2xl font-bold text-center mb-4">Recording...</h3>
+            <div class="flex justify-center items-center">
+                <div class="pulse bg-red-500 rounded-full w-16 h-16"></div>
+            </div>
+            <div class="text-center mt-6">
+                <button type="button" id="stop-modal-recording" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition duration-300">Stop Recording</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let isRecording = false;
+        let mediaRecorder;
+        let audioChunks = [];
+
+        document.getElementById('start-recording').addEventListener('click', async () => {
+            isRecording = true;
+            audioChunks = [];
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            mediaRecorder = new MediaRecorder(stream);
+            mediaRecorder.start();
+
+            mediaRecorder.addEventListener('dataavailable', event => {
+                audioChunks.push(event.data);
+            });
+
+            mediaRecorder.addEventListener('stop', () => {
+                const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                const audioUrl = URL.createObjectURL(audioBlob);
+                const reader = new FileReader();
+                reader.readAsDataURL(audioBlob);
+                reader.onloadend = function () {
+                    document.getElementById('voice-sample').value = reader.result;
+                };
+
+                const audioPlayer = document.getElementById('audio-player');
+                const audioSource = document.getElementById('audio-source');
+                audioSource.src = audioUrl;
+                audioPlayer.load();
+                document.getElementById('audio-player-container').classList.remove('hidden');
+            });
+
+            // Show the modal
+            document.getElementById('recording-modal').classList.remove('hidden');
+            document.getElementById('start-recording').classList.add('hidden');
+            document.getElementById('stop-recording').classList.remove('hidden');
+        });
+
+        document.getElementById('stop-modal-recording').addEventListener('click', () => {
+            isRecording = false;
+            mediaRecorder.stop();
+            document.getElementById('recording-modal').classList.add('hidden');
+            document.getElementById('start-recording').classList.remove('hidden');
+            document.getElementById('stop-recording').classList.add('hidden');
+        });
+
+        document.getElementById('stop-recording').addEventListener('click', () => {
+            isRecording = false;
+            mediaRecorder.stop();
+            document.getElementById('recording-modal').classList.add('hidden');
+            document.getElementById('start-recording').classList.remove('hidden');
+            document.getElementById('stop-recording').classList.add('hidden');
+        });
+    </script>
+</body>
+</html>
