@@ -89,8 +89,12 @@ WSGI_APPLICATION = 'VAS.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'VAS',
+        'USER': 'root',
+        'PASSWORD': '',
+        'HOST': 'localhost',  # Or '127.0.0.1'
+        'PORT': '3306',  # Default MySQL port
     }
 }
 
@@ -137,6 +141,9 @@ STATICFILES_DIRS = [
     BASE_DIR / "vasapp/static",
 ]
 
+MEDIA_URL = '/media/'
+
+MEDIA_ROOT = BASE_DIR / 'media'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field

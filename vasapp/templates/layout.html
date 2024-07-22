@@ -11,22 +11,59 @@
     <title>VAS - {% block title %}{% endblock title %}</title>
 </head>
 <body>
-    <header>
-        <div class="bg-slate-700 text-center">
-            <h1 class="">Header</h1>
-        </div>
-    </header>
+    
+    {% block body %} {% endblock body %}
 
-    <main>
-        <div class="">
-            {% block body %} {% endblock body %}
-        </div>
-    </main>
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="fixed top-5 right-5 z-50 space-y-4"></div>
 
-    <footer class="">
-        <div class="">
-            Footer
-        </div>
-    </footer>
+    <!-- Define the showToast function here -->
+    <script>
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+
+            let bgColor;
+            switch (type) {
+                case 'success':
+                    bgColor = 'bg-green-500';
+                    break;
+                case 'error':
+                    bgColor = 'bg-red-500';
+                    break;
+                case 'warning':
+                    bgColor = 'bg-yellow-500';
+                    break;
+                default:
+                    bgColor = 'bg-blue-500';
+            }
+
+            type = type.charAt(0).toUpperCase() + type.slice(1);
+            toast.className = `fixed top-5 right-5 z-50 rounded-md overflow-hidden w-96 bg-slate-200`;
+            toast.innerHTML = `
+                <div class="flex justify-between px-3 py-2 border bg-transparent backdrop-blur-2xl">
+                    <div class="flex gap-3 items-center">
+                        <img class="w-10 h-10" src="{% static 'images/logosm.png' %}" alt="logo" srcset="">
+                        <span class="font-bold">${type}</span>
+                    </div>
+                    <button onclick="this.parentElement.remove();" class="font-bold hover:ring-2 rounded-xl hover:ring-gray-100 px-2 pb-1 text-2xl">&times;</button>
+                </div>
+                <div class="h-[1px] bg-slate-300"></div>
+                <div class="p-4 font-medium ${bgColor} text-white">
+                    ${message}
+                </div>
+            `;
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+    </script>
+
+    <div class="fixed top-5 right-5 z-20 rounded-md overflow-hidden w-96">
+        
+    </div>
+
 </body>
 </html>
