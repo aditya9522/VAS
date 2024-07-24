@@ -9,17 +9,6 @@ Registration Page
 {% load static %}
     
 <style>
-    .backdrop-blur {
-        backdrop-filter: blur(4px);
-    }
-    .pulse {
-        animation: pulse 1s infinite;
-    }
-    @keyframes pulse {
-        0% { transform: scale(1); }
-        50% { transform: scale(1.1); }
-        100% { transform: scale(1); }
-    }
     @keyframes fade-out {
         0% { opacity: 1; }
         100% { opacity: 0; }
@@ -41,7 +30,7 @@ Registration Page
                 <h1 class="text-2xl font-bold text-gray-800 hidden md:block">Voice Authentication System</h1>
             </div>
             <div>
-                <a class="bg-slate-600 text-white px-6 py-2 rounded hover:bg-yellow-500 transition duration-300" href="{% url 'login' %}">Login</a>
+                <a class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-500 transition duration-300" href="{% url 'login' %}">Login</a>
             </div>
         </div>
     </header>
@@ -51,10 +40,10 @@ Registration Page
         <img class="w-full h-full" src="https://t3.ftcdn.net/jpg/03/55/60/70/240_F_355607062_zYMS8jaz4SfoykpWz5oViRVKL32IabTP.jpg" alt="Background Image">
 
         <div class="absolute inset-0 flex justify-center items-center pt-32">
-            <form method="POST" enctype="multipart/form-data" class="rounded-xl p-8 backdrop-blur bg-white bg-opacity-10 shadow-lg w-150">
+            <form method="POST" enctype="multipart/form-data" class="rounded-xl p-8 backdrop-blur-0 bg-white bg-opacity-10 shadow-lg w-150">
                 {% csrf_token %}
                 <div class="mb-6">
-                    <h2 class="text-2xl font-bold text-gray-900 mb-2 text-center xl:text-3xl">Employee Registration</h2>
+                    <h2 class="text-2xl font-bold text-gray-900 mb-2 text-center xl:text-3xl">Registration</h2>
                     <p class="text-slate-800 text-center">Please fill in your details and provide a voice sample.</p>
                 </div>
 
@@ -92,14 +81,20 @@ Registration Page
 
     <!-- Modal -->
     <div id="recording-modal" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center hidden z-20">
-        <div class="bg-white rounded-lg p-8 max-w-sm w-full">
-            <p class="text-center" id="phrase-to-read">Please read: "The quick brown fox jumps over the lazy dog."</p>
+        <div class="bg-white rounded-lg p-8 max-w-md w-full relative shadow-xl">
+            <button type="button" onclick="closeModal()" class="absolute top-2 right-2 text-gray-500 hover:text-gray-700 focus:outline-none">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+            <p class="font-medium p-2 bg-slate-100 rounded-lg " id="phrase-to-read"> Please Read : Hello, this is a voice sample for the authentication system. I am recording this to verify my identity. Please listen carefully to my voice. This system uses my voice to confirm who I am. Have a great day...</p>
             <h3 class="text-2xl font-bold text-center mb-4 mt-2">Recording...</h3>
-            <div class="flex justify-center items-center">
-                <div class="pulse bg-red-500 rounded-full w-16 h-16"></div>
+            <div class="flex justify-center gap-5 ">
+                <img class="" src="{% static 'images/wave.gif' %}" width="100" height="25" alt="" srcset="">
+                {% comment %} <div class="h-5 w-5 bg-red-600 rounded-full animate-ping"></div> {% endcomment %}
             </div>
             <div class="text-center mt-6">
-                <p id="countdown-timer" class="text-xl font-bold mb-2"></p>
+                <p id="countdown-timer" class="text-xl font-thin mb-2"></p>
                 <button type="button" id="stop-modal-recording" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition duration-300" disabled>Stop Recording</button>
             </div>
         </div>
@@ -111,7 +106,7 @@ Registration Page
     let isRecording = false;
     let mediaRecorder;
     let audioChunks = [];
-    const phrase = "Hello, this is a voice sample for the authentication system. I am recording this to verify my identity. Please listen carefully to my voice. This system uses my voice to confirm who I am. Thank you for using this service. Have a great day!";
+    let countdownInterval;
 
     document.getElementById('start-recording').addEventListener('click', async () => {
         isRecording = true;
@@ -127,13 +122,11 @@ Registration Page
         mediaRecorder.addEventListener('stop', () => {
             const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
 
-            // Create a File object and set it to the hidden input
             const file = new File([audioBlob], "voice_sample.webm", { type: 'audio/webm' });
             const dataTransfer = new DataTransfer();
             dataTransfer.items.add(file);
             document.getElementById('voice-sample').files = dataTransfer.files;
 
-            // Update audio player for playback
             const audioPlayer = document.getElementById('audio-player');
             const audioSource = document.getElementById('audio-source');
             audioSource.src = URL.createObjectURL(audioBlob);
@@ -141,40 +134,34 @@ Registration Page
             document.getElementById('audio-player-container').classList.remove('hidden');
         });
 
-        // Show the modal
         document.getElementById('recording-modal').classList.remove('hidden');
-        document.getElementById('phrase-to-read').innerText = `Please read: "${phrase}"`;
         document.getElementById('start-recording').classList.add('hidden');
         document.getElementById('stop-recording').classList.remove('hidden');
 
-        // Start the countdown timer
-        startCountdown(10);
+        startCountdown(15);
     });
 
     document.getElementById('stop-modal-recording').addEventListener('click', () => {
         if (isRecording) {
             mediaRecorder.stop();
-            document.getElementById('recording-modal').classList.add('hidden');
-            document.getElementById('start-recording').classList.remove('hidden');
-            document.getElementById('stop-recording').classList.add('hidden');
+            closeModal();
         }
     });
 
     document.getElementById('stop-recording').addEventListener('click', () => {
         if (isRecording) {
             mediaRecorder.stop();
-            document.getElementById('recording-modal').classList.add('hidden');
-            document.getElementById('start-recording').classList.remove('hidden');
-            document.getElementById('stop-recording').classList.add('hidden');
+            closeModal();
         }
     });
 
     function startCountdown(duration) {
+        clearInterval(countdownInterval);
         let timer = duration, seconds;
         const countdownElement = document.getElementById('countdown-timer');
         const stopButton = document.getElementById('stop-modal-recording');
         
-        const countdownInterval = setInterval(() => {
+        countdownInterval = setInterval(() => {
             seconds = parseInt(timer, 10);
             countdownElement.textContent = `Time remaining: ${seconds}s`;
 
@@ -185,13 +172,28 @@ Registration Page
             }
         }, 1000);
     }
-</script>
 
-<script>
+    function closeModal() {
+        document.getElementById('recording-modal').classList.add('hidden');
+        document.getElementById('start-recording').classList.remove('hidden');
+        document.getElementById('stop-recording').classList.add('hidden');
+        document.getElementById('stop-modal-recording').disabled = true;
+        document.getElementById('countdown-timer').textContent = '';
+        isRecording = false;
+        audioChunks = [];
+        clearInterval(countdownInterval); 
+    }
+
+    function speakText(text) {
+        const msg = new SpeechSynthesisUtterance(text);
+        window.speechSynthesis.speak(msg);
+    }
+
     document.addEventListener("DOMContentLoaded", function() {
         {% if messages %}
             {% for message in messages %}
                 showToast('{{ message }}', '{{ message.tags }}');
+                speakText("{{ message }}");
             {% endfor %}
         {% endif %}
     });

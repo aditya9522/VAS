@@ -9,6 +9,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="shortcut icon" href="{% static 'images/logosm.png' %}" type="image/x-icon">
     <title>VAS - {% block title %}{% endblock title %}</title>
+    <style>
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes slideOut {
+            from {
+                opacity: 1;
+                transform: translateX(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+        }
+
+        .toast {
+            animation: slideIn 0.5s forwards, slideOut 0.5s 4.5s forwards;
+        }
+    </style>
 </head>
 <body>
     
@@ -17,7 +44,6 @@
     <!-- Toast Notification Container -->
     <div id="toast-container" class="fixed top-5 right-5 z-50 space-y-4"></div>
 
-    <!-- Define the showToast function here -->
     <script>
         function showToast(message, type = 'info') {
             const container = document.getElementById('toast-container');
@@ -39,14 +65,14 @@
             }
 
             type = type.charAt(0).toUpperCase() + type.slice(1);
-            toast.className = `fixed top-5 right-5 z-50 rounded-md overflow-hidden w-96 bg-slate-200`;
+            toast.className = `toast rounded-md overflow-hidden w-96`;
             toast.innerHTML = `
-                <div class="flex justify-between px-3 py-2 border bg-transparent backdrop-blur-2xl">
+                <div class="flex justify-between px-3 py-1.5 border bg-slate-50">
                     <div class="flex gap-3 items-center">
                         <img class="w-10 h-10" src="{% static 'images/logosm.png' %}" alt="logo" srcset="">
                         <span class="font-bold">${type}</span>
                     </div>
-                    <button onclick="this.parentElement.remove();" class="font-bold hover:ring-2 rounded-xl hover:ring-gray-100 px-2 pb-1 text-2xl">&times;</button>
+                    <button onclick="removeToast()" class="font-normal text-slate-900 hover:rounded-full px-2.5 hover:bg-slate-200 pb-1.5 text-3xl text-white">&times;</button>
                 </div>
                 <div class="h-[1px] bg-slate-300"></div>
                 <div class="p-4 font-medium ${bgColor} text-white">
@@ -57,13 +83,14 @@
 
             setTimeout(() => {
                 toast.remove();
-            }, 3000);
+            }, 5000);
+        }
+
+        function removeToast() {
+            toast = document.getElementById('toast-container');
+            toast.remove();
         }
     </script>
-
-    <div class="fixed top-5 right-5 z-20 rounded-md overflow-hidden w-96">
-        
-    </div>
 
 </body>
 </html>

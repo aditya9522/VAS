@@ -8,17 +8,12 @@
 
 {% load static %}
 
-<style>
-    .backdrop-blur {
-        backdrop-filter: blur(8px);
-    }
-</style>
-
 <div class="relative w-screen h-screen">
-    <img class="w-full h-full object-cover" src="https://t4.ftcdn.net/jpg/08/51/79/15/240_F_851791579_8qmnjbcyw1JenLpAoQCIoGnDb3qb8TPB.jpg" alt="">
+    {% comment %} <img class="w-full h-full object-cover" src="https://t4.ftcdn.net/jpg/08/51/79/15/240_F_851791579_8qmnjbcyw1JenLpAoQCIoGnDb3qb8TPB.jpg" alt=""> {% endcomment %}
+    <img class="w-full h-full object-cover" src="{% static 'images/bg.gif' %}" alt="">
     
     <div class="absolute inset-0 flex justify-center items-center">
-        <div class="border border-pink-600 rounded-xl p-8 backdrop-blur">
+        <div class="">
             <div class="font-bold text-red-700 xl:text-5xl md:text-3xl mb-4 text-center">Welcome to Voice Authentication System</div>
             <div class="font-light text-white text-center text-2xl mb-6">Secure your work with the best security system</div>
             <div class="text-center mt-20">

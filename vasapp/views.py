@@ -1,4 +1,3 @@
-import base64
 import os
 from django.shortcuts import render, redirect
 from django.conf import settings
@@ -61,11 +60,11 @@ def login(request):
         voice_sample_data = request.FILES.get('voice-sample')
 
         if not voice_sample_data:
-            messages.error(request, 'Please provide a voice sample for authentication')
+            messages.warning(request, 'Please provide a voice sample for authentication.')
             return redirect('login')
 
         if not Employee.objects.filter(employeeid=employeeid).exists():
-            messages.error(request, 'Employee ID does not exist')
+            messages.info(request, 'Employee ID does not exist!')
             return redirect('login')
 
         try:
@@ -119,11 +118,11 @@ def registerUser(request):
         voice_sample_data = request.FILES.get('voice-sample')
 
         if not voice_sample_data:
-            messages.error(request, 'Please provide a voice sample for registration')
+            messages.warning(request, 'Please provide a voice sample for registration.')
             return redirect('register') 
 
         if Employee.objects.filter(employeeid=employeeid).exists():
-            messages.error(request, 'Employee ID already exists')
+            messages.error(request, 'Employee ID already exists.')
             return redirect('register')
 
         try:
@@ -144,11 +143,11 @@ def registerUser(request):
             )
             employee.save()
 
-            messages.success(request, 'Registration successful.')
+            messages.success(request, 'You have successfully registered.')
             return redirect('register') 
 
         except Exception as e:
-            messages.error(request, 'Please try again')
+            messages.error(request, 'Something went wrong, please try after some time.')
             return redirect('register')
 
     return render(request, 'register.html')
